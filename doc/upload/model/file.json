@@ -1,0 +1,11 @@
+{
+	"id":"int",
+	"size":"int",
+	"token":"str", 
+	"filehash":"str",
+	"filename":"unicode",
+	"created_at":"datetime.datetime",
+	"finished_at":"datetime.datetime",
+}
+
+# notice that "datetime.datetime" type corresponse to "ISOData" in mongodb

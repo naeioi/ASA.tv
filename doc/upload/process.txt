@@ -1,0 +1,15 @@
+First Upload:
+	1. Init
+	2. Generate chunks upload list
+	3. Put/Patch the date according to the order of chunks
+	4. Try to store. If success goto 5. else goto 6.
+	5. finish
+	6. Get {url_prefix}/chunk/{token} for broken or mislay chunks, generate a list for them, and goto 3,
+
+Continuingly upload:
+	goto [First Upload] step 6
+
+Stop upload:
+	1. Get {url_prefix}/destroy/{token}
+
+
