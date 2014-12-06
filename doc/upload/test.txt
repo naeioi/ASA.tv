@@ -1,0 +1,17 @@
+upload:
+
+    ../upload/init/{token}
+        right request test
+
+    ../upload/put/{token}
+        right request test
+        duplicaten chunk error test
+
+    ../upload/destroy/{token}
+        right request test
+
+    ../upload/store/{token}
+        right request test
+
+
+

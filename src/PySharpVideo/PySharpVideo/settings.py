@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'online_player',
-    'upload'
+    'video_cms'
 )
 
 MIDDLEWARE_CLASSES = (
