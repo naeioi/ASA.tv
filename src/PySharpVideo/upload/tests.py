@@ -26,9 +26,7 @@ class QuestionMethodTests(TestCase):
         self.chunk_size = 65536
         self.set_chunk()
 
-    def tearDown(self):
-        client = self.client
-        client.get('/upload/destroy/%s' % self.token)
+
 
     def set_chunk(self):
 
@@ -158,8 +156,6 @@ class QuestionMethodTests(TestCase):
 
     def test_upload(self):
 
-        print("-------------normal_upload_test-------------")
-
         # init post
         self.init_post()
 
@@ -170,35 +166,29 @@ class QuestionMethodTests(TestCase):
         for i in range(len(self.chunk_list)-1):
             if i not in stored_chunks_set:
                 response = self.put_chunk(i)
-                print(response.content)
+                print(Exception(response.content))
 
         # store 
         self.store()
 
     def test_bad_chunks(self):
-
-        print("--------------bad_chunks_test----------------")
-
+        pass
+    '''
         # client
         self.init_post()
 
-        # upload some chunks of the file
-        for i in range(len(self.chunk_list)-1):
-            if random.random()>0.5:
-                response = self.put_chunk(i)
-                assert type(response) == HttpResponse
-
         # get current stored chunks
         stored_chunks_set = self.get_current_chunk_message()
+        
+        # upload some chunks of the file
+        for i in range((file_size+chunk_size-1)//chunk_size):
+            if random.random()>0.5:
+                response = self.put_chunk(file_object, i)
+                assert type(response) == HttpResponse
 
         # check uploaded chunks
-        for i in range(len(self.chunk_list)-1):
+        for i in range((file_size+chunk_size-1)//chunk_size):
             if i in stored_chunks_set:
-                response = self.put_chunk(i)
-                try:
-                    assert type(response) != HttpResponse
-                    print('duplicate test pass')
-                except Exception as e:
-                    raise Exception(type(response))
-
-
+                self.put_chunk(file_object, i)
+                assert
+     '''

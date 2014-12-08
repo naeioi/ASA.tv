@@ -82,7 +82,7 @@ class ChunkView(View):
         except (ValueError, AssertionError):
             return HttpResponseForbidden(json.dumps({ 'errstr' : 'invalid value type' }), content_type='application/json')
         except UploadException as e:
-            return HttpResponseBadRequest(json.dumps({
+            return HttpResponse(json.dumps({
                 'errstr' : str(e)
             }), status=e.status_code)
         
@@ -110,7 +110,7 @@ class ChunkView(View):
         except (ValueError, AssertionError):
             return HttpResponseForbidden(json.dumps({ 'errstr' : 'invalid value type' }), content_type='application/json')
         except UploadException as e:
-            return HttpResponseBadRequest(json.dumps({
+            return HttpResponse(json.dumps({
                 'errstr' : str(e)
             }), status=e.status_code)
         
@@ -152,4 +152,3 @@ class DestroyView(View):
         except Session.DoesNotExist:
             pass
         return HttpResponse(status=201, reason='Deleted', content_type='application/json')
-

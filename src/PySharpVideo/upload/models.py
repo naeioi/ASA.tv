@@ -85,11 +85,9 @@ class Session(models.Model):
     
     def destroy(self):
         # TODO: Implements destroy method.
-        for chunk in self.chunk_set.all():
-            os.unlink(os.path.join(CHUNKS_DIR, chunk.token))
-        self.chunk_set.all().delete()
-
-
+        for chunk in self.chunk_set:
+            os.unlink(CHUNKS_DIR + '/' + chunk.token)
+        self.chunk_set.delete()
     
 class Chunk(models.Model):
     id          = models.IntegerField(primary_key=True)
