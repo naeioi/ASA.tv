@@ -1,9 +1,9 @@
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.views.generic import View
 
-from .models import Session, Chunk
-from .exceptions import UploadException
+from .models import Session, Chunk, File
+from .exceptions import UploadException, DownloadException
 
 import simplejson as json
 import copy
@@ -152,3 +152,46 @@ class DestroyView(View):
         except Session.DoesNotExist:
             pass
         return HttpResponse(status=201, reason='Deleted', content_type='application/json')
+
+
+
+class Media(View):
+    @staticmethod
+    def get(request, filename, *args, **kwargs):
+        assert filename != None
+        token = File.get_token_by_name(filename)
+        return render_to_response(
+                "media.html",
+                {"token":token}
+        )
+
+class Download(View):
+    @staticmethod
+    def get(request, token, *args, **kwargs):
+        try:
+            assert 'HTTP_RANGE' in request.META
+        except Exception as e:
+            return HttpResponseBadRequest(json.dumps({
+                'errstr': 'missing required field'
+            }))
+        try:
+            stream_op = int(request.META['HTTP_RANGE'].split("-")[0][6:])
+        except Exception as e:
+            return HttpResponseBadRequest(json.dumps({
+                'errstr': 'wrong Range format'
+        }))
+        try:
+            stream_ed, content, size = File.get_chunk_by_token(token, stream_op)
+        except Exception as e:
+            return HttpResponse(json.dumps({
+                'errstr': str(e)
+            }), status_code=e.status_code)
+        response = HttpResponse(content, content_type='video/mp4')
+        response.status_code = 206
+        print(response.status_code)
+        response['Accept-Ranges'] = 'bytes'
+        response['Content-Length'] = stream_ed-stream_op+1
+        response['Content-Range'] = 'bytes %s-%s/%s' % (stream_op, stream_ed, size)
+        return response
+
+

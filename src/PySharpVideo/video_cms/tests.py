@@ -26,8 +26,6 @@ class QuestionMethodTests(TestCase):
         self.chunk_size = 65536
         self.set_chunk()
 
-
-
     def set_chunk(self):
 
         self.chunk_list = []
@@ -35,6 +33,7 @@ class QuestionMethodTests(TestCase):
         for i in range((self.file_size-1)//self.chunk_size):
             self.chunk_list.append(i*self.chunk_size)
         self.chunk_list.append(self.file_size)
+
 
     def init_post(self):
 

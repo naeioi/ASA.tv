@@ -23,3 +23,18 @@ class NoSuchSession(UploadException):
 
 class DuplicateChunk(UploadException):
 	status_code = 409
+
+
+
+class DownloadException(Exception):
+    status_code = 403
+    def __init__(self, why):
+        self.reason = why
+    def __str__(self):
+        return self.reason
+
+class FileNotFound(DownloadException):
+    status_code = 404
+
+class DuplicateFile(DownloadException):
+    status_code = 409

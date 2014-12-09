@@ -1,8 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-import online_player
-import upload
+import video_cms
 
 urlpatterns = patterns('',
     # Examples:
@@ -10,7 +9,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^online_player/', include(online_player)),
-    url(r'^upload/', include(upload)),
+    url(r'', include(video_cms)),
 )
 

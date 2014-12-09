@@ -56,3 +56,7 @@ target/
 # others
 *.swp
 1.mp4
+src/Upload/test_file
+src/PySharpVideo/video_cms/chunks
+src/PySharpVideo/video_cms/files
+src/PySharpVideo/db.sqlite3

@@ -1,7 +1,7 @@
 from django.db import models
 from hashlib import sha256
-from .exceptions import IncompleteUpload, ContentMismatch, ChunkSizeTooSmall, NoSuchSession, DuplicateChunk
-from .settings import CHUNKS_DIR, FILES_DIR, MIN_CHUNK_SIZE
+from .exceptions import IncompleteUpload, ContentMismatch, ChunkSizeTooSmall, NoSuchSession, DuplicateChunk, FileNotFound, DuplicateFile
+from .settings import CHUNKS_DIR, FILES_DIR, MIN_CHUNK_SIZE, STREAM_CHUNK_SIZE
 import os
 
 # Create your models here.
@@ -14,6 +14,26 @@ class File(models.Model):
     filename    = models.TextField(max_length=4096)
     created_at  = models.DateTimeField()
     finished_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def get_token_by_name(filename):
+        file_list = list(File.objects.filter(filename=filename))
+        if len(file_list) > 1:
+            raise DuplicateFile("duplicated file")
+        if len(file_list) == 0:
+            raise FileNotFound("can't find the file with the specified name")
+        return file_list[0].token
+
+    @staticmethod
+    def get_chunk_by_token(token, stream_op): 
+        try:
+            with open(os.path.join(FILES_DIR, token), "rb") as f:
+                f.seek(stream_op, 0)
+                size = os.path.getsize(os.path.join(FILES_DIR,token))
+                stream_ed = min(stream_op+STREAM_CHUNK_SIZE-1, size-1)
+                return stream_ed, f.read(STREAM_CHUNK_SIZE), size
+        except Exception as e:
+            raise FileNotFound("the file with the specified token does not exist")
     
 class Session(models.Model):
     id          = models.IntegerField(primary_key=True)
