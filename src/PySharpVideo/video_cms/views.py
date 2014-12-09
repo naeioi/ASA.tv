@@ -194,4 +194,3 @@ class Download(View):
         response['Content-Range'] = 'bytes %s-%s/%s' % (stream_op, stream_ed, size)
         return response
 
-

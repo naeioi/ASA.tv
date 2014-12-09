@@ -1,0 +1,5 @@
+GET {{prefix}}/download/{{token}} 
+
+Response
+    status: 206
+    chunk(<=256kb)

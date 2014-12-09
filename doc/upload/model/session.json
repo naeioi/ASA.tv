@@ -1,7 +1,0 @@
-{
-	"id":"int",
-	"size":"int",
-	"chunk_size":"int",
-	"token":"str",
-	"filehash":"str",
-}
