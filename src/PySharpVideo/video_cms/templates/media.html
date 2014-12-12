@@ -9,6 +9,7 @@
 		<script src="/static/ABPlayerHTML5/build/js/CommentCoreLibrary.min.js"></script>
 		<script src="/static/ABPlayerHTML5/build/js/ABPLibxml.js"></script>
 		<script src="/static/ABPlayerHTML5/build/js/ABPlayer.js"></script>
+        <script src="/static/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript">
 			window.addEventListener("load",function(){
 				var inst = ABP.bind(document.getElementById("player"), isMobile());
@@ -18,10 +19,19 @@
 				inst.txtText.addEventListener("keydown", function(e){
 					if(e && e.keyCode === 13){
                         var d=[]
+                        text      = document.getElementById("barriatext").value;
                         d["text"] = document.getElementById("barriatext").value;
                         d["size"] = 20;
                         d["mode"] = 1;
                         cm.send(d);
+                        $.ajax({
+                            "url"           : "/barrage",
+                            "dataType"      : "json",
+                            "data"          : {"text": d["text"]},
+                            "contentType"   : "application/json; charset=UTF-8",
+                            "type"          : "POST"
+                            //TODO: callback
+                        })
                         inst.txtText.value = "";
 					}
 				});
@@ -34,10 +44,11 @@
 			<div class="ABP-Video">
 				<div class="ABP-Container" id="player"></div>
 				<video id="abp-video" autobuffer="true" data-setup="{}">
-                    <source src="/download/{{token}}" type="video/mp4">
+                <source src="/download/{{token}}" type="video/mp4" value={{token}}>
 					<p>Your browser does not support html5 video!</p>
 				</video>
 			</div>
+            <div class="ABP-Time"></div>
 			<div class="ABP-Text">
 				<input type="text" id="barriatext">
 			</div>

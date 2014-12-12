@@ -2,7 +2,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django.shortcuts import render, render_to_response
 from django.views.generic import View
 
-from .models import Session, Chunk, File
+from .models import Session, Chunk, File, Barrage
 from .exceptions import UploadException, DownloadException
 
 import simplejson as json
@@ -155,7 +155,7 @@ class DestroyView(View):
 
 
 
-class Media(View):
+class MediaView(View):
     @staticmethod
     def get(request, filename, *args, **kwargs):
         assert filename != None
@@ -165,7 +165,7 @@ class Media(View):
                 {"token":token}
         )
 
-class Download(View):
+class DownloadView(View):
     @staticmethod
     def get(request, token, *args, **kwargs):
         try:
@@ -184,8 +184,8 @@ class Download(View):
             stream_ed, content, size = File.get_chunk_by_token(token, stream_op)
         except Exception as e:
             return HttpResponse(json.dumps({
-                'errstr': str(e)
-            }), status_code=e.status_code)
+                    'errstr': str(e)
+                    }), status_code=e.status_code)
         response = HttpResponse(content, content_type='video/mp4')
         response.status_code = 206
         print(response.status_code)
@@ -194,3 +194,22 @@ class Download(View):
         response['Content-Range'] = 'bytes %s-%s/%s' % (stream_op, stream_ed, size)
         return response
 
+class BarrageView(View):
+    @staticmethod
+    def get(request, token):
+        try:
+            barrages_list = Barrage.load_barrages_by_video_token(token)
+            return HttpResponse(json.dumps(
+                    barrages_list
+            ))
+        except Exception as e:
+            return HttpResponse(json.dumps({
+                    'reason': str(e)
+                    }), 
+                    status_code = e.status_code
+            )
+        #TODO:websocket
+
+    def post(request):
+        pass
+        #new_barrage(

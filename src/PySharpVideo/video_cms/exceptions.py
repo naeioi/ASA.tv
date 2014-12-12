@@ -38,3 +38,16 @@ class FileNotFound(DownloadException):
 
 class DuplicateFile(DownloadException):
     status_code = 409
+
+
+
+class BarrageException(Exception):
+    status_code = 403
+    def __init__(self, why):
+        self.reason = why
+    def __str(self):
+        return self.reason
+
+class BarrageMessageError(BarrageException):
+    status_code = 400
+    

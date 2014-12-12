@@ -148,3 +148,62 @@ class Chunk(models.Model):
         obj.owner = owner
         obj.save()
         return obj
+
+
+class Barrage(models.Model):
+    id          = models.IntegerField(primary_key=True)
+    owner       = models.ForeignKey(File, db_index=True, on_delete=models.PROTECT)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    mode        = models.IntegerField()
+    stime       = models.IntegerField()
+    text        = models.CharField(max_length=64)
+    dur         = models.IntegerField()
+    size        = models.IntegerField()
+    color       = models.IntegerField()
+    font        = models.CharField(max_length=64)
+    
+    @staticmethod
+    def new_barrage(owner=None, mode=1, stime=None, text="", dur=6000, size=30, color=0xffffff, font=""):
+        try:
+            assert isinstance(owner, File) == True
+            assert isinstance(mode, int)  == True
+            assert isinstance(stime, int) == True
+            assert isinstance(text, str) == True
+            assert isinstance(dur, int) == True
+            assert isinstance(size, int) == True
+            assert isinstance(color, int) == True
+            assert isinstance(font, str) == True
+        except Exception as e:
+            raise TypeError(str(e))
+        obj = Barrage()
+        obj.owner    = owner
+        obj.mode     = mode
+        obj.stime    = stime
+        obj.text     = text
+        obj.dur      = dur
+        obj.size     = size
+        obj.color    = color
+        obj.font     = font
+        obj.save()
+
+    @staticmethod
+    def load_barrages_by_video_token(token):
+        video = list(File.objects.file_list(token=token))
+        if len(video) > 1:
+            raise DuplicateFile("duplicated file when loading barrages")
+        if len(video) == 0:
+            raise FileNotFound("file not found when loading barrages")
+        video = video[0]
+        barrages = list(video.barrage_set.all())
+        return barrages
+
+
+
+class Comment(models.Model):
+    id          = models.IntegerField(primary_key=True)
+    owner       = models.ForeignKey(File, db_index=True, on_delete=models.PROTECT)
+    created_at  = models.DateTimeField()
+    text        = models.CharField(max_length=1024)
+
+
+
