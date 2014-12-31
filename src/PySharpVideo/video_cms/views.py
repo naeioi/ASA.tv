@@ -5,7 +5,10 @@ from django.views.generic import View
 from .models import Session, Chunk, File, Barrage
 from .exceptions import UploadException, DownloadException
 
-import simplejson as json
+try:
+    import simplejson as json
+except ImportError as e:
+    import json
 import copy
 import base64
 
