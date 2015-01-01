@@ -36,8 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'video_cms',
-    'chatserver',
+    'video_cms'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -50,20 +49,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'ws4redis.context_processors.default',
-)
-
-TEMPLATE_LOADERS = (
-    'django.template.loaders.app_directories.Loader',
-)
-
 ROOT_URLCONF = 'PySharpVideo.urls'
 
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WSGI_APPLICATION = 'PySharpVideo.wsgi.application'
 
 
 # Database
@@ -94,15 +82,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-
-MEDIA_URL = '/rec/'
-
-WEBSOCKET_URL = '/ws/'
-
-TIME_ZONE = 'Asia/Shanghai'
-
-WS4REDIS_EXPIRE = 3600
-
 LOGGING_FILE = "log.log"
 LOGGING = {
     'version': 1,
