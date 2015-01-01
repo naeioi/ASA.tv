@@ -40,6 +40,7 @@ class Client:
         except Exception as e:
             raise Exception(e.read())
         self.token = json.loads(response.read())['token']
+        print("Upload init successfully. token: %s \n" % (self.token,))
 
     def post_single_chunk(self, seq):
         offset      = self.chunksize * seq
@@ -71,6 +72,7 @@ class Client:
             response = urlopen(url)
         except Exception as e:
             raise Exception(e.read())
+        print("Upload successfully!")
 
     def main(self):
         self.init()
