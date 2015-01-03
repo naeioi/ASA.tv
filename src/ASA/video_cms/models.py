@@ -8,7 +8,7 @@ from django.contrib import admin
 # Create your models here.
 
 class File(models.Model):
-    id          = models.IntegerField(primary_key=True)
+    rec         = models.AutoField(primary_key=True)
     size        = models.BigIntegerField()
     token       = models.CharField(max_length=64, unique=True)
     filehash    = models.CharField(max_length=64)
@@ -18,12 +18,13 @@ class File(models.Model):
 
     @staticmethod
     def get_token_by_name(filename):
-        file_list = list(File.objects.filter(filename=filename))
-        if len(file_list) > 1:
-            raise DuplicateFile("duplicated file")
-        if len(file_list) == 0:
-            raise FileNotFound("can't find the file with the specified name")
-        return file_list[0].token
+        assert File.objects.filter(filename=filename).count() == 1
+        return File.objects.get(filename=filename).token
+
+    @staticmethod
+    def get_token_by_rec(rec):
+        assert File.objects.filter(rec=rec).count() == 1
+        return File.objects.get(rec=rec).token
 
     @staticmethod
     def get_chunk_by_token(token, stream_op): 

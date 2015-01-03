@@ -137,7 +137,8 @@ class FinalizeView(View):
             'token'     : new_file.token,
             'hash'      : new_file.filehash,
             'filename'  : new_file.filename,
-            'created'   : str(new_file.created_at.now())
+            'created'   : str(new_file.created_at.now()),
+            'rec'       : int(new_file.rec),
         }))
         return response
     
@@ -155,61 +156,3 @@ class DestroyView(View):
 
 
 
-class MediaView(View):
-    @staticmethod
-    def get(request, filename, *args, **kwargs):
-        assert filename != None
-        token = File.get_token_by_name(filename)
-        return render_to_response(
-                "media.html",
-                {"token":token}
-        )
-
-class DownloadView(View):
-    @staticmethod
-    def get(request, token, *args, **kwargs):
-        try:
-            assert 'HTTP_RANGE' in request.META
-        except Exception as e:
-            return HttpResponseBadRequest(json.dumps({
-                'errstr': 'missing required field'
-            }))
-        try:
-            stream_op = int(request.META['HTTP_RANGE'].split("-")[0][6:])
-        except Exception as e:
-            return HttpResponseBadRequest(json.dumps({
-                'errstr': 'wrong Range format'
-        }))
-        try:
-            stream_ed, content, size = File.get_chunk_by_token(token, stream_op)
-        except Exception as e:
-            return HttpResponse(json.dumps({
-                    'errstr': str(e)
-                    }), status_code=e.status_code)
-        response = HttpResponse(content, content_type='video/mp4')
-        response.status_code = 206
-        print(response.status_code)
-        response['Accept-Ranges'] = 'bytes'
-        response['Content-Length'] = stream_ed-stream_op+1
-        response['Content-Range'] = 'bytes %s-%s/%s' % (stream_op, stream_ed, size)
-        return response
-
-class BarrageView(View):
-    @staticmethod
-    def get(request, token):
-        try:
-            barrages_list = Barrage.load_barrages_by_video_token(token)
-            return HttpResponse(json.dumps(
-                    barrages_list
-            ))
-        except Exception as e:
-            return HttpResponse(json.dumps({
-                    'reason': str(e)
-                    }), 
-                    status_code = e.status_code
-            )
-        #TODO:websocket
-
-    def post(request):
-        pass
-        #new_barrage(

@@ -16,7 +16,11 @@ class MediaView(View):
     @staticmethod
     def get(request, filename, *args, **kwargs):
         assert filename != None
-        token = File.get_token_by_name(filename)
+        try:
+            rec = int(filename)
+            token = File.get_token_by_rec(rec)
+        except:
+            token = File.get_token_by_name(filename)
         return render_to_response(
                 "media.html",
                 {"token":token}
@@ -67,13 +71,12 @@ class DanmakuView(View):
         except (ValueError, AssertionError):
             return HttpResponseBadRequest({ 'errstr' : 'invalid json format' }, content_type = 'application/json')
 
-        assert 'owner'  in data
         assert 'mode'   in data
         assert 'stime'  in data
         assert 'text'   in data
         assert 'color'  in data
         assert 'size'   in data
-        Danmaku.new(owner=data['owner'], 
+        Danmaku.new(owner=token, 
                 mode=int(data['mode']), 
                 stime=int(data['stime']), 
                 text=data['text'], 

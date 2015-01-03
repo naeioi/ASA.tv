@@ -12,12 +12,6 @@ API:
 
 
 Process:
-    1.  GET 
-        URL: {{prefix}}/media/{{file_name}}
+        GET 
+        URL: {{prefix}}/rec/{{file_name}}
         response: webpage
-    2.  GET
-        URL: {{prefix}}/media/get_token_by_name/{{file_name}}
-        response: token in json
-    3.  GET
-        URL: {{prefix}}/media/get_video/{{token}}
-        response: video file

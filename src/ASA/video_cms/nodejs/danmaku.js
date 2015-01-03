@@ -25,7 +25,7 @@ io.sockets.on('connection', function (socket) {
         console.log(danmaku);
 
         // django server
-        request.post({url:'http://localhost:8000/danmaku/', form:danmaku}, function(error, response, body){
+        request.post({url:'http://localhost:8000/danmaku/'+danmaku['owner'], form:danmaku}, function(error, response, body){
             fs.writeFile('log.html', body);
         });
     });

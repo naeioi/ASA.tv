@@ -13,7 +13,7 @@ urlpatterns_upload = patterns('',
 )
 
 urlpatterns_download = patterns('',
-        url(r'media/(?P<filename>[a-zA-Z0-9_]{1,64})/?', MediaView.as_view()),
+        url(r'rec/(?P<filename>[a-zA-Z0-9_]{1,64})/?', MediaView.as_view()),
         url(r'download/(?P<token>[a-zA-Z0-9]{64})/?', DownloadView.as_view())
 )
 

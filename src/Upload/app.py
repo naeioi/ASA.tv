@@ -72,6 +72,7 @@ class Client:
             response = urlopen(url)
         except Exception as e:
             raise Exception(e.read())
+        print(response.read())
         print("Upload successfully!")
 
     def main(self):

@@ -18,10 +18,10 @@ API:
         URL: {{prefix}}/danmaku/{{token}}
         response: array of danmaku (danmaku json format)
 
-    danmaku websocket:
-        URL: {{prefix}}/danmaku/websocket/{{token}}
+    danmaku websocket(nodejs+socket.io):
+        URL: {{hostname}}:4000/
 
-    another method for posting danmaku:
+    post danmaku to django:
         method: POST
         URL: {{prefix}}/danmaku/{{token}}
 
@@ -32,7 +32,7 @@ Process:
         URL: {{prefix}}/danmaku/{{token}}
         response: barrages pool
     2.  set up websocket
-        URL: {{prefix}}/danmaku/websocket/{{token}}
+        URL: {{hostname}}:4000/
         
 
 
