@@ -57,6 +57,6 @@ target/
 *.swp
 1.mp4
 src/Upload/test_file
-src/PySharpVideo/video_cms/chunks
-src/PySharpVideo/video_cms/files
-src/PySharpVideo/db.sqlite3
+src/ASA/video_cms/chunks
+src/ASA/video_cms/files
+src/ASA/db.sqlite3
