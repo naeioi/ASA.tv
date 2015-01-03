@@ -1,58 +1,32 @@
 var http = require('http');
-var server = http.createServer().listen(4000);
-var io = require('socket.io').listen(server);
+var fs = require('fs');
+var request = require('request');
 var cookie_reader = require('cookie');
 var querystring = require('querystring');
 
-var redis = require('socket.io/node_modules/redis');
-var sub = redis.createClient();
+var io = require('socket.io').listen(4000);
 
-//Subscribe to the Redis danmaku channel
-sub.subscribe('danmaku');
+console.log("service start");
 
-//Configure socket.io to store cookie set by Django
-io.configure(function(){
-    io.set('authorization', function(data, accept){
-        if (data.headers.cookie){
-            data.cookie = cookie_reader.parse(data.headers.cookie);
-            return accept(null, true);
-        }
-        return accept('error', false);
-    });
-    io.set('log level', 1);
-});
+io.sockets.on('connection', function (socket) {
+    console.log("a client connected");
 
-io.sockets.on('connection', function(socket){
-    //Grab message from Redis and send to client
-    sub.on('message', function(channel, message){
-        socket.send(message);
-    });
-
-    //Client is sending message through socket.io
-    socket.on('send_message', function(message){
-        values = querystring.stringify({
-            comment: message,
-            sessionid: socket.handshake.cookie['sessionid'],
-        )}
-    });
-
-    var options = {
-        host: 'localhost',
-        port: 3000,
-        path: '/node_api',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': values.length,
-        }
-    }
-
-    var req = http.get(options, function(res){
-        if (message != 'Everythin worked :)'{
-            console.log('Message: ' + message);
-        }
+    // enter channel
+    socket.on("enter_channel", function(token){
+        socket.join(token, function(err){
+            if (err != null)
+                console.log(err);
+        });
     })
 
-    req.write(values);
-    req.end();
-);
+    // client to client
+    socket.on("send_danmaku", function(danmaku){
+        io.sockets.emit("live_danmaku", danmaku);
+        console.log(danmaku);
+
+        // django server
+        request.post({url:'http://localhost:8000/danmaku/', form:danmaku}, function(error, response, body){
+            fs.writeFile('log.html', body);
+        });
+    });
+});

@@ -92,7 +92,7 @@ LOGGING = {
         }
     },
     'loggers': {
-        'online_player.views': {
+        'video_cms.player_views': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True

@@ -3,6 +3,7 @@ from hashlib import sha256
 from .exceptions import IncompleteUpload, ContentMismatch, ChunkSizeTooSmall, NoSuchSession, DuplicateChunk, FileNotFound, DuplicateFile
 from .settings import CHUNKS_DIR, FILES_DIR, MIN_CHUNK_SIZE, STREAM_CHUNK_SIZE
 import os
+from django.contrib import admin
 
 # Create your models here.
 
@@ -150,52 +151,50 @@ class Chunk(models.Model):
         return obj
 
 
-class Barrage(models.Model):
+class Danmaku(models.Model):
     id          = models.IntegerField(primary_key=True)
-    owner       = models.ForeignKey(File, db_index=True, on_delete=models.PROTECT)
     created_at  = models.DateTimeField(auto_now_add=True)
+    owner       = models.ForeignKey(File, db_index=True, on_delete=models.PROTECT)
     mode        = models.IntegerField()
     stime       = models.IntegerField()
-    text        = models.CharField(max_length=64)
-    dur         = models.IntegerField()
+    text        = models.CharField(max_length=128)
     size        = models.IntegerField()
-    color       = models.IntegerField()
-    font        = models.CharField(max_length=64)
+    color       = models.CharField(max_length=16)
     
     @staticmethod
-    def new_barrage(owner=None, mode=1, stime=None, text="", dur=6000, size=30, color=0xffffff, font=""):
-        try:
-            assert isinstance(owner, File) == True
-            assert isinstance(mode, int)  == True
-            assert isinstance(stime, int) == True
-            assert isinstance(text, str) == True
-            assert isinstance(dur, int) == True
-            assert isinstance(size, int) == True
-            assert isinstance(color, int) == True
-            assert isinstance(font, str) == True
-        except Exception as e:
-            raise TypeError(str(e))
-        obj = Barrage()
+    def new(owner=None, mode=1, stime=0, text="", size=30, color=0xffffff):
+        assert isinstance(owner, str) == True
+        assert isinstance(mode, int)  == True
+        assert isinstance(stime, int) == True
+        assert isinstance(text, str) == True
+        assert isinstance(size, int) == True
+        assert isinstance(color, str) == True
+        assert File.objects.filter(token=owner).count() == 1
+        owner = File.objects.get(token=owner)
+        obj = Danmaku()
         obj.owner    = owner
         obj.mode     = mode
         obj.stime    = stime
         obj.text     = text
-        obj.dur      = dur
         obj.size     = size
         obj.color    = color
-        obj.font     = font
         obj.save()
 
     @staticmethod
-    def load_barrages_by_video_token(token):
-        video = list(File.objects.file_list(token=token))
-        if len(video) > 1:
-            raise DuplicateFile("duplicated file when loading barrages")
-        if len(video) == 0:
-            raise FileNotFound("file not found when loading barrages")
-        video = video[0]
-        barrages = list(video.barrage_set.all())
-        return barrages
+    def load_danmaku_by_video_token(token):
+        assert File.objects.filter(token=token).count() == 1
+        video = File.objects.get(token=token)
+        danmaku = list(
+            map(lambda danmaku : {
+                #'owner': danmaku.owner,
+                'mode': danmaku.mode,
+                'stime': danmaku.stime,
+                'text': danmaku.text,
+                'size': danmaku.text,
+                'color': danmaku.color,
+            }, video.danmaku_set.all())
+        )
+        return danmaku
 
 
 
@@ -206,4 +205,4 @@ class Comment(models.Model):
     text        = models.CharField(max_length=1024)
 
 
-
+admin.site.register(Danmaku)

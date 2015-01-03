@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url, include
-from .views import InitView, ChunkView, FinalizeView, DestroyView, MediaView, DownloadView, BarrageView
+from .upload_views import InitView, ChunkView, FinalizeView, DestroyView
+from .player_views import MediaView, DownloadView, DanmakuView
 from django.views.decorators.csrf import csrf_exempt
 
 __all__ = ['exceptions', 'models', 'views']
@@ -16,13 +17,13 @@ urlpatterns_download = patterns('',
         url(r'download/(?P<token>[a-zA-Z0-9]{64})/?', DownloadView.as_view())
 )
 
-urlpatterns_barrages = patterns('',
-        url(r'barrage/', BarrageView.as_view()),
+urlpatterns_danmaku = patterns('',
+        url(r'danmaku/(?P<token>[a-zA-Z0-9]{64})/?', csrf_exempt(DanmakuView.as_view())),
 )
 
 
 urlpatterns = patterns('',
         url(r'upload/', include(urlpatterns_upload)),
         url(r'', include(urlpatterns_download)),
-        url(r'', include(urlpatterns_barrages)),
+        url(r'', include(urlpatterns_danmaku)),
 )

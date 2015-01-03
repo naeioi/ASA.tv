@@ -10,32 +10,61 @@
 		<script src="/static/ABPlayerHTML5/build/js/ABPLibxml.js"></script>
 		<script src="/static/ABPlayerHTML5/build/js/ABPlayer.js"></script>
         <script src="/static/jquery/js/jquery.min.js"></script>
+        <script> document.write("<script src=\"http:\/\/" + window.location.hostname + ":4000/socket.io/socket.io.js\"><\/script>"); </script>
 		<script type="text/javascript">
-			window.addEventListener("load",function(){
+			$(function(){
+                // websocket
+                var socket = new io.connect("http:\/\/" + window.location.hostname + ":4000/");
+                var owner = "{{token}}";
+
+                // enter channel
+                socket.emit("enter_channel", "{{token}}");
+
 				var inst = ABP.bind(document.getElementById("player"), isMobile());
+           
+                $.get("/danmaku/{{token}}", function(data, status) {
+                    if (status!="success") {
+                        console.log("Network Error: "+status);
+                        return;
+                    }
+                    var res = eval(data);
+                    var cdata = new Array();
+                    for (var i=0;i<res.length;++i) {
+                        cdata.push(new CoreComment(cm, res[i]));
+                    }
+                    cm.load(cdata);
+                });
+
+                //subscribe live danmaku
+                socket.on("live_danmaku", function(danmaku){
+                        console.log(danmaku);
+                        cm.load([danmaku]);
+                });
+
                 inst.scripting = true;
                 inst.cmManager.start();
                 var cm = inst.cmManager;
-				inst.txtText.addEventListener("keydown", function(e){
-					if(e && e.keyCode === 13){
-                        var d=[]
-                        text      = document.getElementById("barriatext").value;
-                        d["text"] = document.getElementById("barriatext").value;
-                        d["size"] = 20;
-                        d["mode"] = 1;
-                        cm.send(d);
-                        $.ajax({
-                            "url"           : "/barrage",
-                            "dataType"      : "json",
-                            "data"          : {"text": d["text"]},
-                            "contentType"   : "application/json; charset=UTF-8",
-                            "type"          : "POST"
-                            //TODO: callback
-                        })
-                        inst.txtText.value = "";
+				$(inst.txtText).keyup(function(event){
+					if( event.which === 13){
+
+                        var danmaku={
+                            "owner": owner,
+                            "mode": 1,
+                            "stime": parseInt(inst.video.currentTime*1000)+500,//to prevent dm not showing
+                            "text": $(inst.txtText).val(),
+                            "cindex": 0,
+                            "motion": [],
+                            "size": 25,
+                            "color": 0xffffff,
+                        };
+                        /*
+                        cm.send(danmaku);
+                        */
+                        socket.emit("send_danmaku", danmaku);
+
+                        $(inst.txtText).val("");
 					}
 				});
-				
 			});
 		</script>
 	</head>
@@ -50,7 +79,7 @@
 			</div>
             <div class="ABP-Time"></div>
 			<div class="ABP-Text">
-				<input type="text" id="barriatext">
+				<input type="text" id="danmakutext">
 			</div>
 			<div class="ABP-Control">
 				<div class="button ABP-Play"></div>
