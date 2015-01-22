@@ -9,6 +9,3 @@ Feature
 2. Online play with html5 video
 3. live danmaku
 
-Inhert
-===============
-breakpoint continuingly upload from @jackyyf
