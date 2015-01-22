@@ -1,7 +1,7 @@
 CMS由两个部分组成：用户系统，文件系统
 
 =====================================
-1.文件系统
+1.文件系统:
 
     大概是做成unix-like的那样
     /
@@ -22,29 +22,70 @@ CMS由两个部分组成：用户系统，文件系统
     逻辑视频文件使用引用计数规则（如果一个逻辑视频文件没有在
     任何文件夹里面存在，则会被删除，同时对CDN-director发出
     删除指令)
+    
+    文件以及文件夹使用ACL(access control list)规则进行权限管理
 
 =====================================
 2.用户系统:
 
-    还是做成unix-like的那样, 对应的组会有一个文件夹，对应的
-    用户会有一个文件夹。
+	super admin:
+		站长，可以任免副站长，含有所有权限
+	admin:
+   		副站长，除了不能任免副站长一万，有站长其他所有的权限
+   	user:
+   		普通用户，在/home下有自己的独立的文件夹
+   	group:
+    	用户组，在/group下有该组独立的文件
+    group super host:
+    	用户组主，由super admin和admin任免，越过该组对应的ACL权限系统(下面介绍)
+	group host:
+		用户组副主，由group super host任免，除此之外有group super host的所有权限
+		    	
+======================================
+另外之一:
 
-    用户系统会包括几种类型
-    super admin, admin, category admin, user
+	文件和文件夹的acl
+	read属性，文件(文件夹)对于哪些用户(用户组)可见。特别地，对文件来说,如果该文件对A用户(用户组)可见,则A用户(用户组)可以在[网盘层面]上面播放(下载)这个视频
+	read_by_user(最多可以指定20个,包括自己)
+	read_by_group(最多可以指定20个)
+	
+	remove属性，哪些用户(用户组)可以删除这个文件(文件夹)
+	removed_by_user(最多可以指定5个,包括自己,最少一个)
+	removed_by_group(最多可以指定3个)
+	
+	create属性，哪些用户(用户组)可以在这个文件夹下添加文件
+	created_by_user(最多可以指定5个，包括自己，最少一个)
+	created_by_group(最多可以指定3个)
+	
+	特别地, super admin和admin和该组的group host在此规则之外，拥有查看删除创建所有文件的权限。
+	
+========================================
+另外之二:
+	
+	视频从上传完视频到审核再到放到视频站过程
+	需要反复说明的几点：
+		1./public下的文件夹直接对应到视频站的分类，所以文件被连接到/public/xxxxx下就表示审核通过，可以被任何用户看到
+		2./public下的文件夹实际上是一个group, group super host就是版主, group host是副版主
+		3.在逻辑组织中有一个group叫做all,所有用户(如果没有注册就是ip作为用户名)都在这个group里面.还有一个group叫做ASAer，所有注册用户都在这里面.
+		4./public/xxxxx和/public/xxxxx下的所有文件的read_by_group都含有all
+		5./public/xxxxx会对应一个/home/xxxxx_upload,/home/xxxxx_upload的
+		created_by_group都有ASAer,同时/public/xxxxx的group host(super host)
+		也是/home/xxxxx_upload的group host(super host)
+		/
+			home/
+				xxxxx_upload
+					group host: a0,a1,...an
+					group super host: b
+				...
+			public/
+				xxxxx
+					group host: a0,a1,...an
+					group super host: b
+					(the same as /home/xxxxx_upload/)
+				...
+			
 
-    super admin     :   超级站长（只有一个)
-                        拥有所有权限
-    admin:              站长     (可以多个)
-                        被超级站长任免
-                        拥有所有权限
-    category admin  :   版主    （每个版面只有一个)
-                        被站长任免
-                        拥有该版面下的所有权限
-    user            :   普通用户
-                        注册即可
-                        只有在该用户下的所有的权限
-
-    group: group在/home下也会单独建立一个文件夹(可以和
-    用户重名,但不能和其他group重名), group文件夹会另外记录
-    一些用户的信息，这些用户被称为该group的member,这些member
-    拥有该group的所有权限
+	下面开始介绍过程：
+		1.用户上传文件到/home/xxxxx_upload
+		2.group admin(super admin)看到视频，审核
+		3.审核通过，admin把文件移动到/public/xxxxx,并把原来在/home/xxxxx_upload的文件删除
