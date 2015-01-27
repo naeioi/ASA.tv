@@ -89,3 +89,33 @@ CMS由两个部分组成：用户系统，文件系统
 		1.用户上传文件到/home/xxxxx_upload
 		2.group admin(super admin)看到视频，审核
 		3.审核通过，admin把文件移动到/public/xxxxx,并把原来在/home/xxxxx_upload的文件删除
+		
+======================================
+另外之三:
+	
+	与前端的交互
+	{{hostname}}/cms/<path>/<operation>
+	GET operation:
+		ls: 查看当前文件架(对该用户可见的)的所有信息.如果是一个视频文件则返回错误操作
+		ls <filename>: 返回这个文件的具体信息,如果是一个未上传完全的文件则response会包括已上传和未上传chunk的信息
+		rm <filename>: 删除当前文件(对该用户可见并可删除).如果是一个文件夹则需要"rm -r <foldername>"
+		get_url <filename>: 获得可以获得当前视频文件流的url
+		cp <filepath_a> <filepath_a>: 把file_a复制一份到filepath_b
+		mv <filepath_a> <filepath_b>: *剪切
+		mkdir <foldername>:建立一个文件夹 
+		cd <path>
+	POST operation:
+		init <filename>: 创建一个文件	(需要权限),发送一个描述文件信息的json
+		finish <filename>: 完成一个文件上传
+	PUT operation:
+		put <filename> <chunk_no>:
+			上传文件<filename>的第<chunk_no>个chunk
+	
+=====================================
+另外之四:
+
+	后端布置
+	urls.py正则表达式匹配{{hostname}}/cms/<path>/<operation>
+	根据操作名调用cms.plugin内的process函数
+	规定对于操作的接口
+	def process(session, *argv)
