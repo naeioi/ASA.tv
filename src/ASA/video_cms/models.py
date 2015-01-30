@@ -27,7 +27,7 @@ class File(models.Model):
         return File.objects.get(rec=rec).token
 
     @staticmethod
-    def get_chunk_by_token(token, stream_op): 
+    def get_chunk_by_token(token, stream_op):
         try:
             with open(os.path.join(FILES_DIR, token), "rb") as f:
                 f.seek(stream_op, 0)
@@ -36,7 +36,7 @@ class File(models.Model):
                 return stream_ed, f.read(STREAM_CHUNK_SIZE), size
         except Exception as e:
             raise FileNotFound("the file with the specified token does not exist")
-    
+
 class Session(models.Model):
     id          = models.IntegerField(primary_key=True)
     size        = models.BigIntegerField()
@@ -45,7 +45,7 @@ class Session(models.Model):
     filehash    = models.CharField(max_length=64)
     filename    = models.TextField(max_length=4096)
     created_at  = models.DateTimeField(auto_now_add=True)
-    
+
     @staticmethod
     def new(size, hash, name, chunk_size):
         assert '/' not in name
@@ -62,7 +62,7 @@ class Session(models.Model):
         assert Session.objects.filter(token=obj.token).count() == 0
         obj.save()
         return obj
-    
+
     def try_finish(self):
         chunks = self.chunk_set.order_by('chunk_seq')
         hash_result = sha256()
@@ -84,7 +84,7 @@ class Session(models.Model):
         if hash_result.hexdigest() != self.filehash:
             raise ContentMismatch('hash mismatch.')
         # Upload ok.
-        new_fd = open(FILES_DIR + '/' + self.token, 'wb')       
+        new_fd = open(FILES_DIR + '/' + self.token, 'wb')
         new_file = File()
         new_file.size = self.size
         new_file.token = self.token
@@ -104,13 +104,13 @@ class Session(models.Model):
             chunk.delete()
         self.delete()
         return new_file
-    
+
     def destroy(self):
         # TODO: Implements destroy method.
         for chunk in self.chunk_set:
             os.unlink(CHUNKS_DIR + '/' + chunk.token)
         self.chunk_set.delete()
-    
+
 class Chunk(models.Model):
     id          = models.IntegerField(primary_key=True)
     token       = models.CharField(max_length=64, unique=True)
@@ -161,7 +161,7 @@ class Danmaku(models.Model):
     text        = models.CharField(max_length=128)
     size        = models.IntegerField()
     color       = models.CharField(max_length=16)
-    
+
     @staticmethod
     def new(owner=None, mode=1, stime=0, text="", size=30, color=0xffffff):
         assert isinstance(owner, str) == True
@@ -206,4 +206,4 @@ class Comment(models.Model):
     text        = models.CharField(max_length=1024)
 
 
-admin.site.register(Danmaku)
+#admin.site.register(Danmaku)
