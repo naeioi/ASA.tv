@@ -21,6 +21,8 @@ class rm(baseplugin):
         if len(args) == 0:
             raise MissArguments()
         path_list = args[0].split('/')
+        if path_list[-1] == "":
+            path_list.pop()
         last_file = path_list[-1]
         path_list.pop()
         cd(session, ['/'.join(path_list)])
