@@ -4,5 +4,4 @@ from .models import *
 admin.site.register(Folder)
 admin.site.register(User)
 admin.site.register(Group)
-
-# Register your models here.
+admin.site.register(ACL)

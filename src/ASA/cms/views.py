@@ -1,9 +1,10 @@
-# from django.shortcuts import render
+from django.shortcuts import render
 from django.http import HttpResponse
 import importlib
 from .models import Folder
-from .plugin.base import FolderNotFound
+from .plugins.base import FolderNotFound
 import re
+plugins = importlib.import_module(__package__+'.plugins')
 # import copy
 try:
     import simplejson as json
@@ -21,13 +22,12 @@ def check_path(path, session):
     return Folder.objects.filter(path=path).count() == 1
 
 
-def command_line(request, path, command):
+def command_line_tool_ajax(request, path, command):
     args = re.split(r' +', command.strip())
     try:
         try:
-            plugin = importlib.import_module(__package__+'.plugin.'+args[0])
-        except ImportError as e:
-            raise e
+            plugin = plugins.__dict__[args[0]]
+        except Exception as e:
             raise NoSuchCommand()
         args.pop(0)
         path = '/' + path
@@ -37,5 +37,11 @@ def command_line(request, path, command):
         plugin.process(request.session, args)
     except Exception as e:
         raise e
-        return HttpResponse(json.dumps({'msg': str(e)}))
-    return HttpResponse(json.dumps({'msg': 'OK'}))
+        return HttpResponse(json.dumps({
+            'status': 'error',
+            'msg': str(e)}))
+    return HttpResponse(json.dumps({'status': 'OK'}))
+
+
+def command_line_tool(request):
+    return render(request, 'command_line_tool.html', {})

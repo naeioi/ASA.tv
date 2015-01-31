@@ -1,19 +1,17 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     nick_name = models.CharField(max_length=128)
+    passwd = models.CharField(max_length=128)
     register_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
-    authority = models.IntegerField()
+    authority = models.IntegerField(default=0)
     # 0 user
     # 1 admin
     # 2 super admin
-
-    def __init__(self, authority=0):
-        super(User, self).__init__()
-        self.authority = authority
 
 
 class Group(models.Model):
@@ -24,36 +22,6 @@ class Group(models.Model):
 class BaseFile(models.Model):
     id = models.AutoField(primary_key=True)
     # access control list
-    user_auth_for_read = models.ManyToManyField(
-        User,
-        related_name="%(class)s_uafr",
-        blank=True,
-        db_index=True)
-    user_auth_for_write = models.ManyToManyField(
-        User,
-        related_name="%(class)s_uafw",
-        blank=True,
-        db_index=True)
-    user_auth_for_delete = models.ManyToManyField(
-        User,
-        related_name="%(class)s_uafd",
-        blank=True,
-        db_index=True)
-    group_auth_for_read = models.ManyToManyField(
-        Group,
-        related_name="%(class)s_gafr",
-        blank=True,
-        db_index=True)
-    group_auth_for_write = models.ManyToManyField(
-        Group,
-        related_name="%(class)s_gafw",
-        blank=True,
-        db_index=True)
-    group_auth_for_delete = models.ManyToManyField(
-        Group,
-        related_name="%(class)s_gafd",
-        blank=True,
-        db_index=True)
 
     class Meta:
         abstract = True
@@ -94,19 +62,15 @@ class File(BaseFile):
     created_at = models.DateTimeField()
     finished_at = models.DateTimeField(auto_now_add=True)
 
-'''
-if Folder.objects.filter(path='/').count() <= 0:
-    new_folder = Folder()
-    new_folder.path = '/'
-    new_folder.save()
-if Folder.objects.filter(path='/home/').count() <= 0:
-    new_folder = Folder()
-    new_folder.path = '/home/'
-    root_folder = Folder.objects.get(path='/')
-    new_folder.parent_folder = root_folder
-    new_folder.save()
-if Folder.objects.filter(path='/public/').count() <= 0:
-    new_folder = Folder()
-    new_folder.path = '/public/'
-    new_folder.save()
-'''
+
+class ACL(models.Model):
+    r = models.BooleanField(default=False)
+    w = models.BooleanField(default=False)
+    folder = models.ForeignKey('Folder', null=True, blank=True)
+    file = models.ForeignKey('File', null=True, blank=True)
+    user = models.ForeignKey('User')
+
+    def save(self):
+        if (self.file is None) + (self.folder is None) != 1:
+            raise Exception("One and only one of file and folder can be set")
+        super(ACL, self).__init__()
