@@ -9,10 +9,17 @@ var app = angular.module("web_terminal", []).config(function($interpolateProvide
 			$scope.coms = [];
 			$scope.inp = "";
 			
+			//$http.get("../cms/.");
+
 			$scope.submit = function(){
-				/*TODO:retieve data from server
-				*/
-				$scope.oup = "msg has been sent";
+				$http.get("../cms/" + encodeURI($scope.inp)).
+					success(function(data, status, headers, config){
+						$scope.oup = status == 200 ? data.msg : "encountered an error!";
+					}).
+					error(function(data, status, headers, config){
+						$scope.oup = "encontered an error!";
+					});
+				//$scope.oup = "msg has been sent";
 				$scope.coms.push({inp:$scope.inp, oup:$scope.oup});
 				$scope.inp = "";
 			}
