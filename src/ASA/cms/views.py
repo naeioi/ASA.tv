@@ -34,13 +34,13 @@ def command_line_tool_ajax(request, path, command):
         if check_path(path, request.session) is False:
             raise FolderNotFound(path)
         request.session['path'] = path
-        plugin.process(request.session, args)
+        msg = plugin.process(request.session, args)
     except Exception as e:
         raise e
         return HttpResponse(json.dumps({
             'status': 'error',
             'msg': str(e)}))
-    return HttpResponse(json.dumps({'status': 'OK'}))
+    return HttpResponse(json.dumps({'status': 'OK', "msg": msg}))
 
 
 def command_line_tool(request):
