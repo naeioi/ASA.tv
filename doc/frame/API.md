@@ -1,4 +1,4 @@
-Command-line-API
+ICommand-line-API
 ===========================
 
 用正则表达式来匹配url:
@@ -14,7 +14,15 @@ Command-line-API
 返回值json: 
 	
 	错误{"status": "error", "msg": "{{reason}}"}
-	正常返回{"status": "OK", "msg": "{{msg}}"}		
+	正常返回{"status": "OK", "msg": "{{msg}}"}	
+	msg的格式
+		[[第一行的信息], [第二行的信息], ...]
+	例如:
+		[[object_a1, object_a2 ...], [object_b1, object_b2, ...] ...]
+		在terminal上应该显示为:
+			object_a1 object_a2 ...
+			object_b1 object_b2 ...
+			...
 
 
 
