@@ -2,6 +2,5 @@ from django.contrib import admin
 from .models import *
 
 admin.site.register(Folder)
-admin.site.register(User)
-admin.site.register(Group)
 admin.site.register(ACL)
+admin.site.register(File)

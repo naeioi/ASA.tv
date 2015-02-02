@@ -1,55 +1,36 @@
 from django.db import models
-from django.core.exceptions import ValidationError
-
-
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    nick_name = models.CharField(max_length=128)
-    passwd = models.CharField(max_length=128)
-    register_at = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(auto_now=True)
-    authority = models.IntegerField(default=0)
-    # 0 user
-    # 1 admin
-    # 2 super admin
-
-
-class Group(models.Model):
-    id = models.AutoField(primary_key=True)
-    members = models.ManyToManyField(User, db_index=True)
+# from django.core.exceptions import ValidationError
 
 
 class BaseFile(models.Model):
     id = models.AutoField(primary_key=True)
-    # access control list
+    mod = models.IntegerField()
+    user = models.ManyToManyField(
+        'auth.User',
+        related_name="%(class)s",
+        blank=True,
+        null=True,
+        db_index=True)
+    group = models.ManyToManyField(
+        'auth.Group',
+        related_name="%(class)s",
+        blank=True,
+        null=True,
+        db_index=True)
+    parent_folder = models.ForeignKey(
+        'Folder',
+        related_name="sub_%(class)s",
+        blank=True,
+        null=True,
+        db_index=True)
+    path = models.CharField(max_length=128, unique=True)
 
     class Meta:
         abstract = True
 
 
 class Folder(BaseFile):
-    super_host = models.ManyToManyField(
-        User,
-        related_name="super_host",
-        blank=True,
-        db_index=True)
-    host = models.ManyToManyField(
-        User,
-        related_name="host",
-        blank=True,
-        db_index=True)
-    file = models.ManyToManyField(
-        'File',
-        related_name="folder",
-        blank=True,
-        db_index=True)
-    parent_folder = models.ForeignKey(
-        'self',
-        related_name="folder",
-        blank=True,
-        null=True,
-        db_index=True)
-    path = models.CharField(max_length=128, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.path)
@@ -68,9 +49,12 @@ class ACL(models.Model):
     w = models.BooleanField(default=False)
     folder = models.ForeignKey('Folder', null=True, blank=True)
     file = models.ForeignKey('File', null=True, blank=True)
-    user = models.ForeignKey('User')
+    user = models.ForeignKey('auth.User')
+    group = models.ForeignKey('auth.Group')
 
     def save(self):
         if (self.file is None) + (self.folder is None) != 1:
             raise Exception("One and only one of file and folder can be set")
+        if (self.group is None) + (self.user is None) != 1:
+            raise Exception("One and only one of group and user can be set")
         super(ACL, self).__init__()

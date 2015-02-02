@@ -1,5 +1,6 @@
 from cms.models import *
-from .base import baseplugin, MissArguments, FileExists
+from .base import baseplugin
+from .exceptions import MissArguments, FileExists
 from optparse import OptionParser
 from copy import deepcopy
 

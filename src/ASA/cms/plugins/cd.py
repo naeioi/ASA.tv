@@ -1,5 +1,6 @@
 from cms.models import *
-from .base import baseplugin, FolderNotFound
+from .base import baseplugin
+from .exceptions import FolderNotFound
 
 
 class cd(baseplugin):
