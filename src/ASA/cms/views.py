@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import importlib
 from .models import Folder
-from .plugins.base import FolderNotFound
+from .plugins.exceptions import FolderNotFound
 import re
 plugins = importlib.import_module(__package__+'.plugins')
 # import copy

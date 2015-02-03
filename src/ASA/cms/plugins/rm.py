@@ -1,6 +1,7 @@
 from optparse import OptionParser
 from cms.models import Folder
-from .base import baseplugin, MissArguments, FolderNotFound
+from .base import baseplugin
+from .exceptions import MissArguments, FolderNotFound
 from .cd import process as cd
 
 

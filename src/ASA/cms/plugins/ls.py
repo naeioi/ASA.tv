@@ -12,12 +12,12 @@ class ls(baseplugin):
         if len(args) > 0:
             cd(session, args)
         path = session['path']
-        return list(
+        return [list(
             map(
                 lambda msg: msg.path,
                 Folder.objects.filter(parent_folder__path=path)
             )
-        )
+        )]
 
 process_object = ls()
 process = process_object.process
